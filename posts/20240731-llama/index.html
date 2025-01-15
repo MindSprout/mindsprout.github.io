@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>LLaMA - Eric&#039;s blog</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Eric&#039;s blog"><meta name="msapplication-TileImage" content="/img/favicon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Eric&#039;s blog"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="LLaMA: Open and Efficient Foundation Language Models 引言  参数量变大, 性能不一定更好, 数据量需要同样增大才行  数据   使用的全是公开数据   在 English CommonCrawl 数据集使用 fastText Linear classifier 进行筛选, 这个模型效率比较高   训了一个页面分类器区分是否是wikipedia的"><meta property="og:type" content="blog"><meta property="og:title" content="LLaMA"><meta property="og:url" content="https://erickong-ai.github.io/posts/20240731-llama/"><meta property="og:site_name" content="Eric&#039;s blog"><meta property="og:description" content="LLaMA: Open and Efficient Foundation Language Models 引言  参数量变大, 性能不一定更好, 数据量需要同样增大才行  数据   使用的全是公开数据   在 English CommonCrawl 数据集使用 fastText Linear classifier 进行筛选, 这个模型效率比较高   训了一个页面分类器区分是否是wikipedia的"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://erickong-ai.github.io/img/og_image.png"><meta property="article:published_time" content="2024-07-31T14:00:00.000Z"><meta property="article:modified_time" content="2024-08-01T15:45:16.000Z"><meta property="article:author" content="Eric"><meta property="article:tag" content="llm"><meta property="twitter:card" content="summary"><meta property="twitter:image:src" content="https://erickong-ai.github.io/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://erickong-ai.github.io/posts/20240731-llama/"},"headline":"LLaMA","image":["https://erickong-ai.github.io/img/og_image.png"],"datePublished":"2024-07-31T14:00:00.000Z","dateModified":"2024-08-01T15:45:16.000Z","author":{"@type":"Person","name":"Eric"},"publisher":{"@type":"Organization","name":"Eric's blog","logo":{"@type":"ImageObject","url":{"text":"Eric's Blog"}}},"description":"LLaMA: Open and Efficient Foundation Language Models 引言  参数量变大, 性能不一定更好, 数据量需要同样增大才行  数据   使用的全是公开数据   在 English CommonCrawl 数据集使用 fastText Linear classifier 进行筛选, 这个模型效率比较高   训了一个页面分类器区分是否是wikipedia的"}</script><link rel="canonical" href="https://erickong-ai.github.io/posts/20240731-llama/"><link rel="icon" href="/img/favicon.svg"><link rel="stylesheet" href="https://cdnjs.loli.net/ajax/libs/font-awesome/6.0.0/css/all.min.css"><link rel="stylesheet" href="https://unpkg.com/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.loli.net/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><!--!--><script>var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "//hm.baidu.com/hm.js?366bffea920ed493bc58256fbd877193";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();</script><!--!--><!--!--><link rel="stylesheet" href="https://unpkg.com/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://unpkg.com/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://unpkg.com/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><!--!--><!--!--><!--!--><!-- hexo injector head_end start --><script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.2.0"></head><body class="is-2-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/">Eric&#039;s Blog</a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">首页</a><a class="navbar-item" href="/categories/tech">技术</a><a class="navbar-item" href="/categories/life">生活</a><a class="navbar-item" href="/categories/note">笔记</a><a class="navbar-item" href="/categories">分类</a><a class="navbar-item" href="/tags">标签</a><a class="navbar-item" href="/archives">归档</a><a class="navbar-item" href="/about">关于</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="目录" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="搜索" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-8-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item"><time dateTime="2024-07-31T14:00:00.000Z" title="7/31/2024, 10:00:00 PM">2024-07-31</time>发表</span><span class="level-item"><time dateTime="2024-08-01T15:45:16.000Z" title="8/1/2024, 11:45:16 PM">2024-08-01</time>更新</span><span class="level-item"><a class="link-muted" href="/categories/note/">note</a></span><span class="level-item">2 分钟读完 (大约312个字)</span></div></div><h1 class="title is-3 is-size-4-mobile">LLaMA</h1><div class="content"><p>LLaMA: Open and Efficient Foundation Language Models</p>
+<p>引言</p>
+<ul>
+<li>参数量变大, 性能不一定更好, 数据量需要同样增大才行</li>
+</ul>
+<p>数据</p>
+<ul>
+<li>
+<p>使用的全是公开数据</p>
+</li>
+<li>
+<p>在 English CommonCrawl 数据集使用 fastText Linear classifier 进行筛选, 这个模型效率比较高</p>
+</li>
+<li>
+<p>训了一个页面分类器区分是否是wikipedia的参考页面(参考页面相对质量比较高), 可以用来过滤低质量数据</p>
+</li>
+<li>
+<p>对于github数据清洗, 根据数字和字母的比例来判断数据质量</p>
+</li>
+<li>
+<p>tokenizer 使用的是 byte-pair encoding (BPE)</p>
+</li>
+<li>
+<p>总共1.4T的tokens, 大多数数据在整个训练中只使用一次, 但Wikipedia和books使用了两次</p>
+</li>
+</ul>
+<p>模型结构</p>
+<ul>
+<li>整体基于transformer, 改进如下
+<ul>
+<li>Pre-normalization 增加训练稳定性, 具体使用的是  RMSNorm</li>
+<li>SwiGLU activation function</li>
+<li>把绝对位置编码换成 RoPE</li>
+</ul>
+</li>
+</ul>
+<p>效率优化</p>
+<ul>
+<li>使用 causal multi-head attention</li>
+<li>使用 checkpointing 的技术减少了显存占用, 但保留了计算量高的激活输出(activations)</li>
+</ul>
+<p>训练</p>
+<ul>
+<li>65B的模型 2048张A100 训21天</li>
+</ul>
+<p>评测</p>
+<ul>
+<li>在数据评测这部分, 测试了 maj1@k 这个操作, 有明显的涨点</li>
+</ul>
+<p>指令微调 Intruction Finetuning</p>
+<ul>
+<li>指令微调之后, 模型在MMLU上的指标进一步提高了</li>
+</ul>
+</div><div class="article-licensing box"><div class="licensing-title"><p>LLaMA</p><p><a href="https://erickong-ai.github.io/posts/20240731-llama/">https://erickong-ai.github.io/posts/20240731-llama/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>作者</h6><p>Eric</p></div></div><div class="level-item is-narrow"><div><h6>发布于</h6><p>2024-07-31</p></div></div><div class="level-item is-narrow"><div><h6>更新于</h6><p>2024-08-01</p></div></div><div class="level-item is-narrow"><div><h6>许可协议</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="article-tags is-size-7 mb-4"><span class="mr-2">#</span><a class="link-muted mr-2" rel="tag" href="/tags/llm/">llm</a></div><!--!--></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/posts/20240703_openlane-v2/"><span class="level-item">openlane-v2 数据集介绍</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><!--!--></div><div class="column column-left is-4-tablet is-4-desktop is-4-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="/img/avatar.png" alt="Eric"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Eric</p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">文章</p><a href="/archives"><p class="title">6</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">分类</p><a href="/categories"><p class="title">2</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">标签</p><a href="/tags"><p class="title">8</p></a></div></div></nav></div></div><!--!--><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">最新文章</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-07-31T14:00:00.000Z">2024-07-31</time></p><p class="title"><a href="/posts/20240731-llama/">LLaMA</a></p><p class="categories"><a href="/categories/note/">note</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-07-03T04:08:24.000Z">2024-07-03</time></p><p class="title"><a href="/posts/20240703_openlane-v2/">openlane-v2 数据集介绍</a></p><p class="categories"><a href="/categories/note/">note</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-05-31T14:00:00.000Z">2024-05-31</time></p><p class="title"><a href="/posts/20240531_read_biography/">多读传记的好处</a></p><p class="categories"><a href="/categories/life/">life</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-05-30T14:00:00.000Z">2024-05-30</time></p><p class="title"><a href="/posts/20240530_insistent/">用习惯替代自律, 用他律代替自律</a></p><p class="categories"><a href="/categories/life/">life</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-05-09T03:15:26.000Z">2024-05-09</time></p><p class="title"><a href="/posts/20240509_markdown_test/">hexo markdown测试</a></p><p class="categories"><a href="/categories/life/">life</a></p></div></article></div></div></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/">Eric&#039;s Blog</a><p class="is-size-7"><span>&copy; 2025 Eric</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p><p class="is-size-7"><a href="//icp.gov.moe/?keyword=20230568" target="_blank" rel="noopener">沪ICP备2022034470号</a>&nbsp;&nbsp;未特殊声明文章默认遵循 CC BY 4.0 许可协议</p></div><div class="level-end"></div></div></div></footer><script src="https://unpkg.com/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://unpkg.com/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://unpkg.com/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("zh-cn");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><a id="back-to-top" title="回到顶端" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://unpkg.com/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "此网站使用Cookie来改善您的体验。",
+          dismiss: "知道了！",
+          allow: "允许使用Cookie",
+          deny: "拒绝",
+          link: "了解更多",
+          policy: "Cookie政策",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://unpkg.com/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://unpkg.com/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><script type="text/javascript" id="MathJax-script" async>MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      },
+      svg: {
+        fontCache: 'global'
+      },
+      chtml: {
+        matchFontHeight: false
+      }
+    };</script><script src="https://unpkg.com/mathjax@3.2.2/es5/tex-mml-chtml.js"></script><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="想要查找什么..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"想要查找什么...","untitled":"(无标题)","posts":"文章","pages":"页面","categories":"分类","tags":"标签"});
+        });</script></body></html>
